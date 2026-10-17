@@ -41,6 +41,7 @@ footer{text-align:center;color:#718077;font-size:12px;padding:22px}
   <div><label for="teamA">Team A</label><input id="teamA" value="Team A" maxlength="40"></div>
   <div><label for="teamB">Team B</label><input id="teamB" value="Team B" maxlength="40"></div>
   <div><label for="batter">Striker</label><input id="batter" placeholder="Batter name" maxlength="40"></div>
+  <div><label for="nonStriker">Non-Striker</label><input id="nonStriker" placeholder="Non-striker name" maxlength="40"></div>
   <div><label for="bowler">Bowler</label><input id="bowler" placeholder="Bowler name" maxlength="40"></div>
   <div class="wide"><button id="saveSetup" class="secondary">Save match names</button></div>
  </div>
@@ -135,8 +136,7 @@ function render(){
  $("balls").innerHTML=i.balls.length?i.balls.map((b,n)=>`<span class="ball" title="Ball ${n+1}: ${escapeHtml(b.detail)}">${escapeHtml(b.label)}</span>`).join(""):'<span class="muted">No balls recorded yet.</span>';
  $("summary").innerHTML=match.inningsData.map((x,n)=>`<tr><td>${n+1}</td><td>${escapeHtml(match.teams[n])}</td><td>${scoreString(x)}</td><td>${oversText(x.legalBalls)}</td></tr>`).join("");
  $("teamA").value=match.teams[0];$("teamB").value=match.teams[1];
- $("batter").value=match.batter||"";$("bowler").value=match.bowler||"";
-}
+ $("batter").value=match.batter||"";$("nonStriker").value=match.nonStriker||"";$("bowler").value=match.bowler||"";
 function escapeHtml(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function requireScorer(){if(!currentUser){notice("Please log in with the scorer account first.");return false;}if(match.finished||current().legalBalls>=36){notice("This innings is complete.");return false;}return true;}
 function addBall({runs=0,type="normal",extra=0,wicket=false,label=null}){
@@ -155,7 +155,7 @@ function addBall({runs=0,type="normal",extra=0,wicket=false,label=null}){
  if(i.legalBalls>=36 || (match.innings===1 && i.runs>match.inningsData[0].runs)) match.finished=true;
  render();persist();
 }
-$("saveSetup").onclick=()=>{if(!currentUser){notice("Login required to save match names.");return;}match.teams=[$("teamA").value.trim()||"Team A",$("teamB").value.trim()||"Team B"];match.batter=$("batter").value.trim();match.bowler=$("bowler").value.trim();render();persist();notice("Match details saved.");};
+$("saveSetup").onclick=()=>{if(!currentUser){notice("Login required to save match names.");return;}match.teams=[$("teamA").value.trim()||"Team A",$("teamB").value.trim()||"Team B"];match.batter=$("batter").value.trim();match.batter=$("batter").value.trim();match.nonStriker=$("nonStriker").value.trim();match.bowler=$("bowler").value.trim();render();persist();notice("Match details saved.");};
 document.querySelectorAll("[data-run]").forEach(b=>b.onclick=()=>addBall({runs:Number(b.dataset.run),label:b.dataset.run==="4"?"4":b.dataset.run==="6"?"6":b.dataset.run}));
 $("addExtra").onclick=()=>{const type=$("extraType").value;const extra=Math.max(1,Math.min(7,Number($("extraRuns").value)||1));addBall({type,extra,label:type==="wide"?"Wd":type==="noBall"?"Nb":type==="bye"?"B":"Lb"});};
 $("wicketBtn").onclick=()=>addBall({wicket:true,label:"W"});
